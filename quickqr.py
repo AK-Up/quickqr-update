@@ -8,6 +8,7 @@ import qrcode
 import io
 import getpass
 import platform
+import update_checker
 
 def resource_path(relative_path):
     """Get absolute path to resource, works for dev and for PyInstaller"""
@@ -83,6 +84,22 @@ class QRCodeApp(ctk.CTk):
         generate_btn = ctk.CTkButton(self, text="Generate & Save QR", command=self.generate_qr, fg_color="#f8b400", text_color="black", width=250)
         generate_btn.pack(pady=20)
 
+        label("Pattern Color (#hex):").pack(pady=(10, 0))
+
+        self.fg_entry = ctk.CTkEntry(self, placeholder_text="#000000", width=200)
+        self.fg_entry.insert(0, self.fg_color)
+        self.fg_entry.pack()
+
+        label("Background Color (#hex):").pack(pady=(10, 0))
+        self.bg_entry = ctk.CTkEntry(self, placeholder_text="#ffffff", width=200)
+        self.bg_entry.insert(0, self.bg_color)
+        self.bg_entry.pack()
+
+        update_btn = ctk.CTkButton(self, text="Check for Updates", command=update_checker.check_for_update, fg_color="#f8b400", text_color="black")
+        update_btn.pack(pady=5)
+
+
+
     def browse_folder(self):
         folder = filedialog.askdirectory()
         if folder:
@@ -154,6 +171,17 @@ class QRCodeApp(ctk.CTk):
         img.save(save_path)
         self.update_preview()
         messagebox.showinfo("Saved", f"QR Code saved at:\n{save_path}")
+
+        self.fg_color = self.fg_entry.get().strip()
+        self.bg_color = self.bg_entry.get().strip()
+
+        if self.bg_color == self.fg_color:
+            messagebox.showerror("Error", "Background and pattern colors cannot be the same.")
+            return
+        if not self.fg_color.startswith("#") or not self.bg_color.startswith("#"):
+            messagebox.showerror("Error", "Colors must be in #hex format.")
+            return
+
 
 if __name__ == "__main__":
     app = QRCodeApp()
